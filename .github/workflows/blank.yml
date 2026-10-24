@@ -10,31 +10,35 @@ jobs:
         mod: [core, omnitrix, heroes]
     steps:
       - uses: actions/checkout@v4
+      - name: Unzip project
+        run: unzip -q multiverse-modpack-proyecto.zip
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
       - name: Build ${{ matrix.mod }}
-        working-directory: mods/${{ matrix.mod }}
+        working-directory: multiverse-modpack/mods/${{ matrix.mod }}
         run: |
           chmod +x ./gradlew
           ./gradlew --no-daemon build
       - uses: actions/upload-artifact@v4
         with:
           name: jar-${{ matrix.mod }}
-          path: mods/${{ matrix.mod }}/build/libs/*.jar
+          path: multiverse-modpack/mods/${{ matrix.mod }}/build/libs/*.jar
           if-no-files-found: error
   modpack:
     needs: mods
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Unzip project
+        run: unzip -q multiverse-modpack-proyecto.zip
       - uses: actions/download-artifact@v4
         with:
           pattern: jar-*
           path: jars
           merge-multiple: true
-      - run: python3 scripts/build_modpack.py jars dist
+      - run: python3 multiverse-modpack/scripts/build_modpack.py jars dist
       - uses: actions/upload-artifact@v4
         with:
           name: modpack
